@@ -6,6 +6,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.myapplication.Modelo.Inscritos;
 import com.example.myapplication.Modelo.ListaInscritos;
@@ -37,8 +38,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
     Button btnRetroFit, btnVolley;
-
     TextView txt1;
+    String baseurl = "https://gorest.co.in/public/v1/users";
 
 
 
@@ -46,20 +47,23 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        txt1=findViewById(R.id.txt);
-
-        RequestQueue requestQueue;
+        txt1 = findViewById(R.id.txt);
 
 
     }
 
 
-        public void EventClick (View vista)
-        {
+    public void EventClick(View vista) {
 
-            RetroFit();
+        RetroFit();
 
-        }
+    }
+
+    public void EventoClick(View vista) {
+
+        Volley();
+
+    }
 
 
     private void RetroFit() {
@@ -74,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
                     if (response.isSuccessful()) {
                         ListaInscritos l = response.body();
                         List<Inscritos> list = l.getData();
-                        txt1.setText("id" +response.code());
+                        txt1.setText("id" + response.code());
                         for (Inscritos ins : list) {
                             String cont = "";
                             cont += ("nombre" + ins.getName() + "/n");
@@ -102,10 +106,42 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+    private void Volley() {
+        RequestQueue requestQueue;
+        requestQueue = Volley.newRequestQueue(this);
+        JsonObjectRequest jsonobject = new JsonObjectRequest(Request.Method.GET, baseurl, null, new com.android.volley.Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+
+                    JSONArray jsonarray = response.getJSONArray("data");
+                    txt1.setText(jsonarray.toString());
+                    for (int i = 0; i < jsonarray.length(); i++) {
+                        JSONObject datos = new JSONObject(jsonarray.get(i).toString());
+                        Inscritos inscritos = new Inscritos(datos.getInt("id"), datos.get("name"), datos.get("email"), datos.get("gender"), datos.get("status"));
+                        txt1.append(inscritos.toString());
+                    }
+                    return;
+                } catch (Exception e) {
+                }
+
+            }
+        }, new com.android.volley.Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+        requestQueue.add(jsonobject);
+    }
 
 
 
 }
+
+
+
+
 
 
 

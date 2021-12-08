@@ -10,16 +10,17 @@ import com.android.volley.toolbox.Volley;
 import com.example.myapplication.Modelo.Inscritos;
 import com.example.myapplication.Modelo.ListaInscritos;
 
-import android.annotation.SuppressLint;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication.Interfaces.InscritosAPI;
-import com.example.myapplication.Modelo.ListaInscritos;
-import com.google.androidgamesdk.gametextinput.Listener;
+
 
 
 import org.json.JSONArray;
@@ -36,24 +37,29 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
     Button btnRetroFit, btnVolley;
-    EditText txt;
-    RequestQueue requestQueue;
-    String baseurl="https://gorest.co.in/public/v1/users";
-    @SuppressLint("WrongViewCast")
+
+    TextView txt1;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        txt1=findViewById(R.id.txt);
 
-        txt = findViewById(R.id.txt);
-    requestQueue = Volley.newRequestQueue(this);
-        btnRetroFit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                RetroFit();
-            }
-        });
+        RequestQueue requestQueue;
+
+
     }
+
+
+        public void EventClick (View vista)
+        {
+
+            RetroFit();
+
+        }
 
 
     private void RetroFit() {
@@ -68,21 +74,21 @@ public class MainActivity extends AppCompatActivity {
                     if (response.isSuccessful()) {
                         ListaInscritos l = response.body();
                         List<Inscritos> list = l.getData();
-                        txt.setText("id" + response.code());
+                        txt1.setText("id" +response.code());
                         for (Inscritos ins : list) {
                             String cont = "";
                             cont += ("nombre" + ins.getName() + "/n");
                             cont += ("email" + ins.getEmail() + "/n");
                             cont += ("genero" + ins.getGender() + "/n");
                             cont += ("estado" + ins.getStatus() + "/n");
-                            txt.append(cont);
+                            txt1.append(cont);
                         }
                     }
 
 
                 } catch (Exception ex) {
-                    txt.setText("Con Retrofit\nNo hay resultados");
-                    Toast.makeText(MainActivity.this, "No hay resultados", Toast.LENGTH_SHORT);
+                    txt1.setText("Con Retrofit\nNo hay resultados");
+
                 }
 
 
@@ -96,33 +102,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-    private void Volley(String baseurl)
-    {
-        JsonArrayRequest jsonRequest = new JsonArrayRequest(Request.Method.GET, baseurl, null,
-                new com.android.volley.Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        int tamanio = response.length();
-                        for (int i = 0; i < tamanio; i++) {
-                            try {
-                                JSONObject json = new JSONObject(response.get(i).toString());
-                                Inscritos inscritos = new Inscritos(json.getInt("id"),json.get("name"),json.get("email"),json.get("gender"),json.get("status"));
-                                txt.append(inscritos.toString());
-                            } catch (JSONException ex) {
-                                txt.append("No hay resultados");
-                                System.out.println(ex.toString());
-                            }
-                        }
-                    }
-                }, new com.android.volley.Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError ex) {
-                txt.append("No hay resultados");
-                System.out.println(ex.toString());
-            }
-        });
-        requestQueue.add(jsonRequest);
-    }
+
+
 }
 
 
